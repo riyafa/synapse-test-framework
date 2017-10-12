@@ -16,6 +16,18 @@ public class TestSampleOne extends BaseTest {
 
         SampleClientResult result = getStockQuoteClient().requestStandardQuote(
                 addUrl, trpUrl, null, "IBM" ,null);
+
         Assert.assertTrue("Client did not receive the expected response", result.responseReceived());
     }
+
+    @Test
+    public void testSynapseAsHTTPProxy() {
+        String addUrl = "http://" + getBackendAddress() + "/services/SimpleStockQuoteService";
+        String prxUrl = "http://" + getSynapseAddress() +"/";
+
+        System.out.println("Running test: Using Synapse as a HTTP Proxy");
+        SampleClientResult result = getStockQuoteClient().requestStandardQuote(
+                addUrl, null, prxUrl, "IBM", null);
+
+        Assert.assertTrue("Client did not receive the expected response", result.responseReceived());    }
 }
