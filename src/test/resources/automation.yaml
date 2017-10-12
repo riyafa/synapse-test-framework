@@ -1,0 +1,11 @@
+synapseServer:
+  hostname: 10.100.8.3
+  port: 8280
+
+backendServer:
+  hostname: 10.100.8.3
+  port: 9000
+
+axis2ClientConfig:
+  clientRepo: target/test_repos/axis2Client
+  axis2Xml: src/test/resources/axis2Xml/axis2Client/axis2_def.xml
