@@ -9,8 +9,9 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
-public class EmulatorBackendTest extends BaseTest{
-    String trpUrl = "http://" + getSynapseAddress() +"/services/emulator_backend";
+
+public class EmulatorBackendTest extends BaseTest {
+    String trpUrl = "http://" + getSynapseAddress() + "/services/emulator_backend";
 
     @Test
     public void testEmulatorBackend() throws IOException {
@@ -21,9 +22,14 @@ public class EmulatorBackendTest extends BaseTest{
                 new InputStreamReader(
                         connection.getInputStream()));
         String inputLine;
+        inputLine = in.readLine();
+        if (inputLine == null) {
+            Assert.fail();
+        }
 
-        while ((inputLine = in.readLine()) != null) {
-            Assert.assertEquals(inputLine,"User1");
+        while (inputLine != null) {
+            Assert.assertEquals(inputLine, "User1");
+            inputLine = in.readLine();
         }
         in.close();
     }
