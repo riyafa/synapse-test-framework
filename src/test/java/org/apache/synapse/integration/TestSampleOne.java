@@ -2,11 +2,13 @@ package org.apache.synapse.integration;
 
 import org.apache.synapse.integration.clients.SampleClientResult;
 import org.junit.Assert;
+import org.junit.Ignore;
 import org.junit.Test;
 
 public class TestSampleOne extends BaseTest {
 
     @Test
+    @Ignore("Test is ignored as a demonstration")
     public void testSmartClientMode() {
 
         String addUrl = "http://" + getBackendAddress() + "/services/SimpleStockQuoteService";
@@ -21,6 +23,7 @@ public class TestSampleOne extends BaseTest {
     }
 
     @Test
+    @Ignore("Test is ignored as a demonstration")
     public void testSynapseAsHTTPProxy() {
         String addUrl = "http://" + getBackendAddress() + "/services/SimpleStockQuoteService";
         String prxUrl = "http://" + getSynapseAddress() +"/";

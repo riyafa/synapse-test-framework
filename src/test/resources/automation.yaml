@@ -1,9 +1,9 @@
 synapseServer:
-  hostname: 10.100.8.3
+  hostname: 192.168.57.47
   port: 8280
 
 backendServer:
-  hostname: 10.100.8.3
+  hostname: 192.168.57.44
   port: 9000
 
 axis2ClientConfig:
