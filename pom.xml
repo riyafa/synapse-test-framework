@@ -137,6 +137,9 @@
         <rampart.version>1.6.1-wso2v18</rampart.version>
         <addressing.version>${axis2.version}</addressing.version>
         <slf4j.version>1.7.21</slf4j.version>
+
+    <maven.compiler.source>1.8</maven.compiler.source>
+    <maven.compiler.target>1.8</maven.compiler.target>
     </properties>
 
     <repositories>

@@ -10,7 +10,7 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 
 public class EmulatorBackendTest extends BaseTest{
-    String trpUrl = "http://" + getSynapseAddress() +"/services/EchoService";
+    String trpUrl = "http://" + getSynapseAddress() +"/services/emulator_backend";
 
     @Test
     public void testEmulatorBackend() throws IOException {
