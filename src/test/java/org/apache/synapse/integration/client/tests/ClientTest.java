@@ -20,7 +20,6 @@ import org.wso2.carbon.protocol.emulator.http.client.contexts.RequestResponseCor
 import java.io.File;
 import java.util.List;
 
-@Ignore("Temporarily")
 public class ClientTest extends BaseTest {
     private String path = "/services/emulator_backend";
     private String processingPath = "/services/content_type";
