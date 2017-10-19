@@ -2,6 +2,7 @@ package org.apache.synapse.integration.server.tests;
 
 import io.netty.handler.codec.http.HttpHeaders;
 import io.netty.handler.codec.http.HttpMethod;
+import io.netty.handler.codec.http.HttpResponseStatus;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.synapse.integration.BaseTest;
@@ -20,6 +21,7 @@ import java.io.IOException;
 
 public class ServerTest extends BaseTest {
     private static final Log log = LogFactory.getLog(ServerTest.class);
+    private File plainFile = new File("100KB.txt");
 
     @Test
     public void testLargePayload() throws IOException {
@@ -32,7 +34,7 @@ public class ServerTest extends BaseTest {
                 )
                 .when(
                         HttpClientRequestBuilderContext.request().withPath("/services/large_payload")
-                                .withMethod(HttpMethod.POST).withBody(new File("100KB.txt"))
+                                .withMethod(HttpMethod.POST).withBody(plainFile)
                 )
                 .then(
                         HttpClientResponseBuilderContext.response().assertionIgnore()
@@ -43,7 +45,6 @@ public class ServerTest extends BaseTest {
     }
 
     @Test
-    @Ignore
     public void testSlowResponse() {
         HttpClientResponseProcessorContext response = Emulator.getHttpEmulator()
                 .client()
@@ -54,7 +55,7 @@ public class ServerTest extends BaseTest {
                 )
                 .when(
                         HttpClientRequestBuilderContext.request().withPath("/services/slow_response")
-                                .withMethod(HttpMethod.POST).withBody(new File("100KB.txt"))
+                                .withMethod(HttpMethod.POST).withBody(plainFile)
                 )
                 .then(
                         HttpClientResponseBuilderContext.response().assertionIgnore()
@@ -97,7 +98,7 @@ public class ServerTest extends BaseTest {
                 )
                 .when(
                         HttpClientRequestBuilderContext.request().withPath("/services/writing_delay")
-                                .withMethod(HttpMethod.POST).withBody(new File("100KB.txt"))
+                                .withMethod(HttpMethod.POST).withBody(plainFile)
                 )
                 .then(
                         HttpClientResponseBuilderContext.response().assertionIgnore()
@@ -118,7 +119,7 @@ public class ServerTest extends BaseTest {
                 )
                 .when(
                         HttpClientRequestBuilderContext.request().withPath("/services/keep_alive")
-                                .withMethod(HttpMethod.POST).withBody(new File("100KB.txt"))
+                                .withMethod(HttpMethod.POST).withBody(plainFile)
                 )
                 .then(
                         HttpClientResponseBuilderContext.response().assertionIgnore()
@@ -139,7 +140,7 @@ public class ServerTest extends BaseTest {
                 )
                 .when(
                         HttpClientRequestBuilderContext.request().withPath("/services/chunking_disabled")
-                                .withMethod(HttpMethod.POST).withBody(new File("100KB.txt"))
+                                .withMethod(HttpMethod.POST).withBody(plainFile)
                 )
                 .then(
                         HttpClientResponseBuilderContext.response().assertionIgnore()
@@ -160,7 +161,7 @@ public class ServerTest extends BaseTest {
                 )
                 .when(
                         HttpClientRequestBuilderContext.request().withPath("/services/chunking_disabled_synapse")
-                                .withMethod(HttpMethod.POST).withBody(new File("100KB.txt"))
+                                .withMethod(HttpMethod.POST).withBody(plainFile)
                                 .withHeader(HttpHeaders.Names.CONTENT_TYPE, "text/plain")
                 )
                 .then(
@@ -169,6 +170,124 @@ public class ServerTest extends BaseTest {
                 .operation()
                 .send();
         Assert.assertEquals("Chunking disabled", response.getReceivedResponseContext().getResponseBody());
+    }
+
+    @Test
+    public void testDisconnectPartially() {
+        HttpClientResponseProcessorContext response = Emulator.getHttpEmulator()
+                .client()
+                .given(
+                        HttpClientConfigBuilderContext.configure()
+                                .host(getConfig().getSynapseServer().getHostname())
+                                .port(Integer.parseInt(getConfig().getSynapseServer().getPort()))
+                )
+                .when(
+                        HttpClientRequestBuilderContext.request().withPath("/services/support_http10")
+                                .withMethod(HttpMethod.POST).withBody(plainFile)
+                )
+                .then(
+                        HttpClientResponseBuilderContext.response().assertionIgnore()
+                )
+                .operation()
+                .send();
+        Assert.assertEquals("The HTTP/1.1 is not supported because of the configurations\n",
+                            response.getReceivedResponseContext().getResponseBody());
+        Assert.assertEquals(response.getReceivedResponse().getStatus(), HttpResponseStatus.HTTP_VERSION_NOT_SUPPORTED);
+    }
+
+    @Test
+    public void testMalformedPayload() {
+        HttpClientResponseProcessorContext response = Emulator.getHttpEmulator()
+                .client()
+                .given(
+                        HttpClientConfigBuilderContext.configure()
+                                .host(getConfig().getSynapseServer().getHostname())
+                                .port(Integer.parseInt(getConfig().getSynapseServer().getPort()))
+                )
+                .when(
+                        HttpClientRequestBuilderContext.request().withPath("/services/malformed_payload")
+                                .withMethod(HttpMethod.POST).withBody(plainFile)
+                )
+                .then(
+                        HttpClientResponseBuilderContext.response().assertionIgnore()
+                )
+                .operation()
+                .send();
+        Assert.assertNull(response);
+    }
+
+    @Test
+    public void testRandomDrop() {
+        Emulator.getHttpEmulator().client()
+                .given(
+                        HttpClientConfigBuilderContext.configure()
+                                .host(getConfig().getSynapseServer().getHostname())
+                                .port(Integer.parseInt(getConfig().getSynapseServer().getPort()))
+                )
+                .when(
+                        HttpClientRequestBuilderContext.request().withPath("/services/random_drop")
+                                .withMethod(HttpMethod.POST).withBody(plainFile)
+                )
+                .then(
+                        HttpClientResponseBuilderContext.response().assertionIgnore()
+                )
+                .operation()
+                .send();
+
+        HttpClientResponseProcessorContext response = Emulator.getHttpEmulator()
+                .client()
+                .given(
+                        HttpClientConfigBuilderContext.configure()
+                                .host(getConfig().getSynapseServer().getHostname())
+                                .port(Integer.parseInt(getConfig().getSynapseServer().getPort()))
+                )
+                .when(
+                        HttpClientRequestBuilderContext.request().withPath("/services/emulator_backend")
+                                .withMethod(HttpMethod.POST).withBody(plainFile)
+                )
+                .then(
+                        HttpClientResponseBuilderContext.response().assertionIgnore()
+                )
+                .operation()
+                .send();
+        Assert.assertEquals(response.getReceivedResponseContext().getResponseBody(), "{\"glossary\":{\"title" +
+                "\":\"exampleglossary\",\"GlossDiv\":{\"title\":\"S\",\"GlossList\":{\"GlossEntry\":{\"ID\":\"SGML\"," +
+                "\"SortAs\":\"SGML\",\"GlossTerm\":\"StandardGeneralizedMarkupLanguage\",\"Acronym\":\"SGML\"," +
+                "\"Abbrev\":\"ISO8879:1986\",\"GlossDef\":{\"para\":\"Ameta-markuplanguage," +
+                "usedtocreatemarkuplanguagessuchasDocBook.\",\"GlossSeeAlso\":[\"GML\",\"XML\"]}," +
+                "\"GlossSee\":\"markup\"}}}}}");
+        Assert.assertEquals("application/json",
+                            response.getReceivedResponse().headers().get(HttpHeaders.Names.CONTENT_TYPE));
+    }
+
+    @Test
+    public void testMissingHeader() {
+        HttpClientResponseProcessorContext response = Emulator.getHttpEmulator()
+                .client()
+                .given(
+                        HttpClientConfigBuilderContext.configure()
+                                .host(getConfig().getSynapseServer().getHostname())
+                                .port(Integer.parseInt(getConfig().getSynapseServer().getPort()))
+                )
+                .when(
+                        HttpClientRequestBuilderContext.request().withPath("/services/missing_header")
+                                .withMethod(HttpMethod.POST).withBody(new File("100KB.txt"))
+                )
+                .then(
+                        HttpClientResponseBuilderContext.response().assertionIgnore()
+                )
+                .operation()
+                .send();
+        Assert.assertNotEquals("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
+                                    "<note>\n" +
+                                    "  <to>Tove</to>\n" +
+                                    "  <from>Jani</from>\n" +
+                                    "  <heading>Reminder</heading>\n" +
+                                    "  <body>Don't forget me this weekend!</body>\n" +
+                                    "</note>",
+                            response.getReceivedResponseContext().getResponseBody());
+        Assert.assertEquals("application/octet-stream; charset=UTF-8",
+                            response.getReceivedResponse().headers().get(HttpHeaders.Names.CONTENT_TYPE));
     }
 
     public static String getFileBody(File filePath) throws IOException {
