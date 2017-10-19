@@ -12,9 +12,6 @@ import org.wso2.carbon.protocol.emulator.http.client.contexts.HttpClientRequestB
 import org.wso2.carbon.protocol.emulator.http.client.contexts.HttpClientResponseBuilderContext;
 import org.wso2.carbon.protocol.emulator.http.client.contexts.HttpClientResponseProcessorContext;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
 import java.net.MalformedURLException;
 
 public class EmulatorLongRunningTest extends BaseTest {
