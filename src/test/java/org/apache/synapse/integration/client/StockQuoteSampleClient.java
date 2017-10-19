@@ -1,4 +1,4 @@
-package org.apache.synapse.integration.clients;
+package org.apache.synapse.integration.client;
 
 import org.apache.axiom.om.OMAbstractFactory;
 import org.apache.axiom.om.OMElement;

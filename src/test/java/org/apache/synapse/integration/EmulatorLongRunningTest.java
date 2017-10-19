@@ -4,6 +4,7 @@ import io.netty.handler.codec.http.HttpMethod;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.junit.Assert;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.wso2.carbon.protocol.emulator.dsl.Emulator;
 import org.wso2.carbon.protocol.emulator.http.client.contexts.HttpClientConfigBuilderContext;
@@ -11,18 +12,20 @@ import org.wso2.carbon.protocol.emulator.http.client.contexts.HttpClientRequestB
 import org.wso2.carbon.protocol.emulator.http.client.contexts.HttpClientResponseBuilderContext;
 import org.wso2.carbon.protocol.emulator.http.client.contexts.HttpClientResponseProcessorContext;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
 import java.net.MalformedURLException;
 
-
-public class EmulatorBackendTest extends BaseTest {
-    private static final Log log = LogFactory.getLog(EmulatorBackendTest.class);
+public class EmulatorLongRunningTest extends BaseTest {
+    private static final Log log = LogFactory.getLog(EmulatorLongRunningTest.class);
     private long failed = 0;
     private long passed = 0;
 
-    @Test
+    @Test @Ignore
     public void testEmulatorBackend() throws MalformedURLException {
 
-        long count = 1000;
+        long count = 10;
         for (int i = 1; i <= count; i++) {
             try {
                 HttpClientResponseProcessorContext response = Emulator.getHttpEmulator()
@@ -32,7 +35,7 @@ public class EmulatorBackendTest extends BaseTest {
                                        .port(Integer.parseInt(getConfig().getSynapseServer().getPort())))
                         .when(HttpClientRequestBuilderContext.request()
                                       .withPath(
-                                              "/services/emulator_backend")
+                                              "/services/emulator_slow_read")
                                       .withMethod(
                                               HttpMethod
                                                       .POST))
@@ -45,7 +48,7 @@ public class EmulatorBackendTest extends BaseTest {
                     failed++;
                     continue;
                 }
-                if (response.getReceivedResponseContext().getResponseBody().equals("User1")) {
+                if (response.getReceivedResponseContext().getResponseBody().equals("Slowly responding backend")) {
                     log.info("[" + i + "] Passed");
                     passed++;
                 } else {
@@ -62,5 +65,4 @@ public class EmulatorBackendTest extends BaseTest {
         log.info(passed + " tests passed");
         Assert.assertEquals(passed, count);
     }
-
 }

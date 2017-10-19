@@ -1,6 +1,6 @@
 package org.apache.synapse.integration;
 
-import org.apache.synapse.integration.clients.SampleClientResult;
+import org.apache.synapse.integration.client.SampleClientResult;
 import org.junit.Assert;
 import org.junit.Ignore;
 import org.junit.Test;

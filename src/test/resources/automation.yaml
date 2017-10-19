@@ -1,5 +1,5 @@
 synapseServer:
-  hostname: 192.168.57.47
+  hostname: 10.100.8.3
   port: 8280
 
 backendServer:

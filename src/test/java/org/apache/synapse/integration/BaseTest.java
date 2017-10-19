@@ -1,6 +1,6 @@
 package org.apache.synapse.integration;
 
-import org.apache.synapse.integration.clients.StockQuoteSampleClient;
+import org.apache.synapse.integration.client.StockQuoteSampleClient;
 import org.apache.synapse.integration.config.AutomationYamlFile;
 import org.junit.Assert;
 import org.junit.BeforeClass;

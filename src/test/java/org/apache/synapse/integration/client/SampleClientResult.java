@@ -1,4 +1,4 @@
-package org.apache.synapse.integration.clients;
+package org.apache.synapse.integration.client;
 
 import java.util.Properties;
 import java.util.concurrent.atomic.AtomicInteger;
