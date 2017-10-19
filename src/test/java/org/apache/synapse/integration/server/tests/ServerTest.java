@@ -173,7 +173,7 @@ public class ServerTest extends BaseTest {
     }
 
     @Test
-    public void testDisconnectPartially() {
+    public void testHttp10NotSupported() {
         HttpClientResponseProcessorContext response = Emulator.getHttpEmulator()
                 .client()
                 .given(
@@ -279,15 +279,57 @@ public class ServerTest extends BaseTest {
                 .operation()
                 .send();
         Assert.assertNotEquals("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
-                                    "<note>\n" +
-                                    "  <to>Tove</to>\n" +
-                                    "  <from>Jani</from>\n" +
-                                    "  <heading>Reminder</heading>\n" +
-                                    "  <body>Don't forget me this weekend!</body>\n" +
-                                    "</note>",
-                            response.getReceivedResponseContext().getResponseBody());
+                                       "<note>\n" +
+                                       "  <to>Tove</to>\n" +
+                                       "  <from>Jani</from>\n" +
+                                       "  <heading>Reminder</heading>\n" +
+                                       "  <body>Don't forget me this weekend!</body>\n" +
+                                       "</note>",
+                               response.getReceivedResponseContext().getResponseBody());
         Assert.assertEquals("application/octet-stream; charset=UTF-8",
                             response.getReceivedResponse().headers().get(HttpHeaders.Names.CONTENT_TYPE));
+    }
+
+    @Test
+    public void testReadingDrop() {
+        HttpClientResponseProcessorContext response = Emulator.getHttpEmulator()
+                .client()
+                .given(
+                        HttpClientConfigBuilderContext.configure()
+                                .host(getConfig().getSynapseServer().getHostname())
+                                .port(Integer.parseInt(getConfig().getSynapseServer().getPort()))
+                )
+                .when(
+                        HttpClientRequestBuilderContext.request().withPath("/services/reading_delay_server")
+                                .withMethod(HttpMethod.POST).withBody(new File("100KB.txt"))
+                )
+                .then(
+                        HttpClientResponseBuilderContext.response().assertionIgnore()
+                )
+                .operation()
+                .send();
+        Assert.assertNull(response);
+    }
+
+    @Test
+    public void testWritingDrop() {
+        HttpClientResponseProcessorContext response = Emulator.getHttpEmulator()
+                .client()
+                .given(
+                        HttpClientConfigBuilderContext.configure()
+                                .host(getConfig().getSynapseServer().getHostname())
+                                .port(Integer.parseInt(getConfig().getSynapseServer().getPort()))
+                )
+                .when(
+                        HttpClientRequestBuilderContext.request().withPath("/services/writing_delay_server")
+                                .withMethod(HttpMethod.POST).withBody(new File("100KB.txt"))
+                )
+                .then(
+                        HttpClientResponseBuilderContext.response().assertionIgnore()
+                )
+                .operation()
+                .send();
+        Assert.assertNull(response);
     }
 
     public static String getFileBody(File filePath) throws IOException {
@@ -309,5 +351,27 @@ public class ServerTest extends BaseTest {
                 fileInputStream.close();
             }
         }
+    }
+
+    @Test
+    public void testInvalidSpec() {
+        HttpClientResponseProcessorContext response = Emulator.getHttpEmulator()
+                .client()
+                .given(
+                        HttpClientConfigBuilderContext.configure()
+                                .host(getConfig().getSynapseServer().getHostname())
+                                .port(Integer.parseInt(getConfig().getSynapseServer().getPort()))
+                )
+                .when(
+                        HttpClientRequestBuilderContext.request().withPath("/services/invalid_spec")
+                                .withMethod(HttpMethod.POST)
+                                .withBody(plainFile)
+                )
+                .then(
+                        HttpClientResponseBuilderContext.response().assertionIgnore()
+                )
+                .operation()
+                .send();
+        Assert.assertNull(response);
     }
 }
