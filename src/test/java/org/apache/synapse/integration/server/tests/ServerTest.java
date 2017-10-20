@@ -6,8 +6,8 @@ import io.netty.handler.codec.http.HttpResponseStatus;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.synapse.integration.BaseTest;
+import org.apache.synapse.integration.utils.TestUtils;
 import org.junit.Assert;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.wso2.carbon.protocol.emulator.dsl.Emulator;
 import org.wso2.carbon.protocol.emulator.http.client.contexts.HttpClientConfigBuilderContext;
@@ -16,7 +16,6 @@ import org.wso2.carbon.protocol.emulator.http.client.contexts.HttpClientResponse
 import org.wso2.carbon.protocol.emulator.http.client.contexts.HttpClientResponseProcessorContext;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 
 public class ServerTest extends BaseTest {
@@ -41,7 +40,8 @@ public class ServerTest extends BaseTest {
                 )
                 .operation()
                 .send();
-        Assert.assertEquals(response.getReceivedResponseContext().getResponseBody(), getFileBody(new File("1MB.txt")));
+        Assert.assertEquals(response.getReceivedResponseContext().getResponseBody(),
+                            TestUtils.getFileBody(new File("1MB.txt")));
     }
 
     @Test
@@ -330,27 +330,6 @@ public class ServerTest extends BaseTest {
                 .operation()
                 .send();
         Assert.assertNull(response);
-    }
-
-    public static String getFileBody(File filePath) throws IOException {
-
-        FileInputStream fileInputStream = null;
-        try {
-            fileInputStream = new FileInputStream(filePath);
-            int c;
-            StringBuilder stringBuilder = new StringBuilder();
-            while ((c = fileInputStream.read()) != -1) {
-                stringBuilder.append(c);
-            }
-            String content = stringBuilder.toString();
-            content = content.replace("\n", "").replace("\r", "");
-
-            return content;
-        } finally {
-            if (fileInputStream != null) {
-                fileInputStream.close();
-            }
-        }
     }
 
     @Test
